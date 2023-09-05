@@ -1,4 +1,4 @@
-xThis project comes under the WordPress [Etiquette](https://wordpress.org/about/etiquette/):
+ xThis project comes under the WordPress [Etiquette](https://wordpress.org/about/etiquette/):
 
 In the WordPress open source project, we realize that our biggest asset is the community that we foster. The project, as a whole, follows these basic philosophical principles from The Cathedral and The Bazaar.
 
