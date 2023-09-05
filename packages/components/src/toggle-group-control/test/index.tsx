@@ -18,10 +18,6 @@ import {
 	ToggleGroupControlOptionIcon,
 } from '../index';
 
-function getWrappingPopoverElement( element: HTMLElement ) {
-	return element.closest( '.components-popover' );
-}
-
 describe( 'ToggleGroupControl', () => {
 	const options = (
 		<>
@@ -115,11 +111,7 @@ describe( 'ToggleGroupControl', () => {
 			'Click for Delicious Gnocchi'
 		);
 
-		await waitFor( () =>
-			expect(
-				getWrappingPopoverElement( tooltip )
-			).toBePositionedPopover()
-		);
+		await waitFor( () => expect( tooltip ).toBePositionedPopover() );
 
 		expect( tooltip ).toBeVisible();
 	} );

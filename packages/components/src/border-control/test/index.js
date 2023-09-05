@@ -43,10 +43,6 @@ function createProps( customProps ) {
 
 const toggleLabelRegex = /Border color( and style)* picker/;
 
-function getWrappingPopoverElement( element ) {
-	return element.closest( '.components-popover' );
-}
-
 const openPopover = async () => {
 	const toggleButton = screen.getByLabelText( toggleLabelRegex );
 	fireEvent.click( toggleButton );
@@ -56,11 +52,7 @@ const openPopover = async () => {
 		name: /^Custom color picker/,
 	} );
 
-	await waitFor( () =>
-		expect(
-			getWrappingPopoverElement( pickerButton )
-		).toBePositionedPopover()
-	);
+	await waitFor( () => expect( pickerButton ).toBePositionedPopover() );
 };
 
 const getButton = ( name ) => {
