@@ -17,6 +17,7 @@ async function prPreviewLink( payload, octokit ) {
 	const owner = payload.repository.owner.login;
 	const pullRequestNumber = payload.pull_request.number;
 
+	debug( JSON.stringify(payload) );
 	debug( 'pr-preview-link: Adding comment to PR.' );
 
 	await octokit.issues.createComment( {

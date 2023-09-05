@@ -38,25 +38,7 @@ const automations = [
 	{
 		event: 'pull_request_target',
 		action: 'opened',
-		task: assignFixedIssues,
-	},
-	{
-		event: 'pull_request_target',
-		action: 'opened',
 		task: prPreviewLink,
-	},
-	{
-		event: 'pull_request_target',
-		action: 'opened',
-		task: firstTimeContributorLabel,
-	},
-	{
-		event: 'push',
-		task: firstTimeContributorAccountLink,
-	},
-	{
-		event: 'push',
-		task: addMilestone,
 	},
 ];
 
