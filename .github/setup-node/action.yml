@@ -44,3 +44,7 @@ runs:
               # Run the post-install scripts for workspaces.
               npx lerna run postinstall
           shell: bash
+        
+        - name: Comment Pull Request
+          uses: thollander/actions-comment-pull-request@v2.4.2
+
