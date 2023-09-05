@@ -1,7 +1,7 @@
 <!-- Thanks for contributing to Gutenberg! Please follow the Gutenberg Contributing Guidelines:
 https://github.com/WordPress/gutenberg/blob/trunk/CONTRIBUTING.md -->
 
-## What?
+## What? 1
 <!-- In a few words, what is the PR actually doing? -->
 
 ## Why?
