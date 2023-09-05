@@ -25,7 +25,7 @@ async function prPreviewLink( payload, octokit ) {
 	debug( JSON.stringify({token,repo, owner, pullRequestNumber, octokit})  );
 	debug( 'pr-preview-link: Adding comment to PR.' );
 
-	await octokit.issues.createComment( {
+	await octokit.rest.issues.createComment( {
 		owner,
 		repo,
 		issue_number: pullRequestNumber,
