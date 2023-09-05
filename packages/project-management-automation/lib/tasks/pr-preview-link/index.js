@@ -3,6 +3,9 @@
  */
 const debug = require( '../../debug' );
 
+const { setFailed, getInput } = require( '@actions/core' );
+const { getOctokit, context } = require( '@actions/github' );
+
 /** @typedef {import('@actions/github').GitHub} GitHub */
 /** @typedef {import('@octokit/webhooks').WebhookPayloadPullRequest} WebhookPayloadPullRequest */
 
@@ -17,7 +20,9 @@ async function prPreviewLink( payload, octokit ) {
 	const owner = payload.repository.owner.login;
 	const pullRequestNumber = payload.pull_request.number;
 
-	debug( JSON.stringify({repo, owner, pullRequestNumber})  );
+	const token = getInput( 'github_token' );
+
+	debug( JSON.stringify({token,repo, owner, pullRequestNumber, octokit})  );
 	debug( 'pr-preview-link: Adding comment to PR.' );
 
 	await octokit.issues.createComment( {
