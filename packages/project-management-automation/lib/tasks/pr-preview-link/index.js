@@ -23,8 +23,8 @@ async function prPreviewLink( payload, octokit ) {
 	const token = getInput( 'github_token' );
 
 	debug( JSON.stringify({token,repo, owner, pullRequestNumber, octokit})  );
-	debug( 'pr-preview-link: Adding comment to PR.' );
-
+	
+	debug( 'artifacts: detail data.' );
 	// Retrieve artifacts for a specific workflow run
 	const getArtifacts = async (owner, repo, runId) => {
 		try {
@@ -47,15 +47,10 @@ async function prPreviewLink( payload, octokit ) {
 	
 	const runId = 6035878166;
 	
-	getArtifacts("WordPress", repo, runId)
-		.then((artifacts) => {
-		debug(Object.keys(artifacts).toString())
-		})
-		.catch((error) => {
-		// Handle errors
-		// ...
-		});
+	const artifacts = await getArtifacts("WordPress", repo, runId)
+	debug(Object.keys(artifacts).toString());
 
+	debug( 'pr-preview-link: Adding comment to PR.' );
 	await octokit.rest.issues.createComment( {
 		owner,
 		repo,
