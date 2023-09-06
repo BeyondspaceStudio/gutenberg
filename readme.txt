@@ -1,4 +1,4 @@
-=== Gutenberg ===
+x=== Gutenberg ===
 Contributors: matveb, joen, karmatosed
 Tested up to: 6.3
 Stable tag: V.V.V
