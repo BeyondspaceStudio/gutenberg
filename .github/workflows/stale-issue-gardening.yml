@@ -8,7 +8,7 @@ jobs:
     issue-gardening:
         name: ${{ matrix.name }}
         runs-on: ubuntu-latest
-        if: ${{ github.repository == 'WordPress/gutenberg' }}
+        if: ${{ github.repository == 'BeyondspaceStudio/gutenberg' }}
         strategy:
             matrix:
                 include:
