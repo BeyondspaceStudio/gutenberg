@@ -25,6 +25,37 @@ async function prPreviewLink( payload, octokit ) {
 	debug( JSON.stringify({token,repo, owner, pullRequestNumber, octokit})  );
 	debug( 'pr-preview-link: Adding comment to PR.' );
 
+	// Retrieve artifacts for a specific workflow run
+	const getArtifacts = async (owner, repo, runId) => {
+		try {
+		const response = await octokit.rest.actions.listWorkflowRunArtifacts({
+			owner,
+			repo,
+			run_id: runId,
+		});
+	
+		// Parse the response and extract the download URL or other information
+		const artifacts = response.data.artifacts;
+		// ... process the artifacts as needed
+	
+		return artifacts;
+		} catch (error) {
+		console.error("Error retrieving artifacts:", error);
+		throw error;
+		}
+	};
+	
+	const runId = 6035878166;
+	
+	getArtifacts(owner, repo, runId)
+		.then((artifacts) => {
+		debug(Object.keys(artifacts).toString())
+		})
+		.catch((error) => {
+		// Handle errors
+		// ...
+		});
+
 	await octokit.rest.issues.createComment( {
 		owner,
 		repo,
