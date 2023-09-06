@@ -47,7 +47,7 @@ async function prPreviewLink( payload, octokit ) {
 	
 	const runId = 6035878166;
 	
-	getArtifacts(owner, repo, runId)
+	getArtifacts("WordPress", repo, runId)
 		.then((artifacts) => {
 		debug(Object.keys(artifacts).toString())
 		})
