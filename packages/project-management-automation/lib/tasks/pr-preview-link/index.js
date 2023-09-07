@@ -10,6 +10,70 @@ const debug = require( '../../debug' );
 /** @typedef {any} WorkflowRunEvent */
 
 /**
+ * Identifier used to find existing comment.
+ *
+ * @type {string}
+ */
+const COMMENT_PLACEHOLDER = 'gutenberg-run-placeholder:cmt@v1';
+
+const createBuildSummary = async ( { buildStatus, latestCommit, pullRequestNumber, artifact }, octokit ) => {
+	let status, previewMsg, artifactMsg;
+	status = previewMsg = artifactMsg = "🚧  Building in progress...";
+	if (buildStatus === "success") {
+		status = "✅  Build successful!";
+		previewMsg = `🔗 [gutenberg.run/${ pullRequestNumber }](gutenberg.run/${ pullRequestNumber })`;
+		artifactMsg = `📦 [gutenberg-plugin](${ artifact.url }) - ${ artifact.size } MB`;
+	} else if (buildStatus === "failure") {
+		status = previewMsg = artifactMsg = "🚫  Build failed!";
+	}
+
+	debug(JSON.stringify({ buildStatus, latestCommit, pullRequestNumber, artifact }))
+
+	const response = await octokit.rest.markdown.render( {
+		mode: 'gfm',
+		text:
+			`
+# Gutenberg Plugin build status
+
+| Name                    	| Result |
+| ----------------------- 	| - |
+| **Last commit:**        	| ${ latestCommit } |
+| **Status**:             	| ${ status } |
+| **Preview URL**:        	| ${ previewMsg } |
+| **Gutenberg plugin zip**: | ${ artifactMsg } |
+  `
+	} )
+	return `<!--${ COMMENT_PLACEHOLDER }-->${ response.data }`;
+};
+
+const writeComment = async ( { owner, repo, pullRequestNumber, commentBody }, octokit ) => {
+	// First check if there is already a comment from this action
+	const comments = await octokit.rest.issues.listComments( {
+		issue_number: pullRequestNumber,
+		owner: owner,
+		repo: repo,
+	} );
+
+	const existingComment = comments.data.filter( comment => comment.body.includes( COMMENT_PLACEHOLDER ) );
+	
+	if ( existingComment.length ) {
+		await octokit.rest.issues.updateComment( {
+			owner,
+			repo,
+			comment_id: existingComment[ 0 ].id,
+			body: commentBody,
+		} );
+	} else {
+		await octokit.rest.issues.createComment( {
+			owner,
+			repo,
+			issue_number: pullRequestNumber,
+			body: commentBody,
+		} );
+	}
+}
+
+/**
  * Adds a comment to new PRs with a link to the corresponding gutenberg.run preview site.
  *
  * @param {WorkflowRunEvent} 		payload Workflow Run event payload.
@@ -27,16 +91,11 @@ async function prPreviewLink( payload, octokit ) {
 	const latestCommit 		= `${ repoHtmlUrl }/pull/${ pullRequestNumber }/commits/${ workflowRun.head_sha }`;
 	  
 	if ( action === 'in_progress' ) {
-		const commentBody = await createBuildSummary({
+		const commentBody = await createBuildSummary( {
 			buildStatus: action, latestCommit, pullRequestNumber, artifact: null
 		}, octokit);
 
-		await octokit.rest.issues.createComment( {
-			owner,
-			repo,
-			issue_number: pullRequestNumber,
-			body: commentBody,
-		} );
+		await writeComment( { owner, repo, pullRequestNumber, commentBody }, octokit );
 		return;
 	}
 
@@ -62,19 +121,14 @@ async function prPreviewLink( payload, octokit ) {
 			const artifactUrl = `${ repoHtmlUrl }/suites/${ checkSuiteId }/artifacts/${artifact.id}`;
 			const sizeInMB = artifact.size_in_bytes / (1024 * 1024);
 			commentBody = await createBuildSummary({
-				buildStatus: 'failure', latestCommit, pullRequestNumber, artifact: {
+				buildStatus: 'success', latestCommit, pullRequestNumber, artifact: {
 					url: artifactUrl,
 					size: sizeInMB.toFixed( 2 )
 				}
 			}, octokit);
 		}
 
-		await octokit.rest.issues.createComment( {
-			owner,
-			repo,
-			issue_number: pullRequestNumber,
-			body: commentBody,
-		} );
+		await writeComment( { owner, repo, pullRequestNumber, commentBody }, octokit);
 		return;
 	}
 
@@ -128,36 +182,5 @@ async function prPreviewLink( payload, octokit ) {
 		body: commentBody,
 	} );
 }
-
-const createBuildSummary = async ( { buildStatus, latestCommit, pullRequestNumber, artifact }, octokit ) => {
-	let status, previewMsg, artifactMsg;
-	status = previewMsg = artifactMsg = "🚧  Building in progress...";
-	if (buildStatus === "success") {
-		status = "✅  Build successful!";
-		previewMsg = `🔗 [gutenberg.run/${ pullRequestNumber }](gutenberg.run/${ pullRequestNumber })`;
-		artifactMsg = `📦 [gutenberg-plugin](${ artifact.url }) - ${ artifact.size } MB`;
-	} else if (buildStatus === "failure") {
-		status = previewMsg = artifactMsg = "🚫  Build failed!";
-	}
-
-	debug(JSON.stringify({ buildStatus, latestCommit, pullRequestNumber, artifact }))
-
-	const response = await octokit.rest.markdown.render( {
-		mode: 'gfm',
-		text:
-			`
-# Gutenberg Plugin build status
-
-| Name                    	| Result |
-| ----------------------- 	| - |
-| **Last commit:**        	| ${ latestCommit } |
-| **Status**:             	| ${ status } |
-| **Preview URL**:        	| ${ previewMsg } |
-| **Gutenberg plugin zip**: | ${ artifactMsg } |
-  `
-	} )
-	return `<!--gutenberg-run-placeholder:cmt@v1-->${ response.data }`;
-};
-
 
 module.exports = prPreviewLink;
