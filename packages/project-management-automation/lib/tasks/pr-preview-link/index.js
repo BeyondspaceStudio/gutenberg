@@ -22,7 +22,7 @@ async function prPreviewLink( payload, octokit ) {
 	const repoHtmlUrl 	= payload.repository.html_url;
     const workflowRun 	= payload.workflow_run;
 	const workflowRunId = workflowRun.id;
-	const pullRequestNumber = workflowRun.pull_requests[0].number;
+	const pullRequestNumber = workflowRun.pull_requests[ 0 ].number;
 	const checkSuiteId 		= workflowRun.check_suite_id;
 	const latestCommit 		= `${ repoHtmlUrl }/pull/${ pullRequestNumber }/commits/${ workflowRun.head_sha }`;
 	  
@@ -127,16 +127,16 @@ const createBuildSummary = async ( { buildStatus, latestCommit, pullRequestNumbe
 	debug(JSON.stringify({ buildStatus, latestCommit, pullRequestNumber, artifactsUrl }))
 
 	const response = await octokit.rest.markdown.render( {
-		"mode": 'gfm',
-		"text":
+		mode: 'gfm',
+		text:
 			`
 # Gutenberg Plugin build status
 
-| Name                    | Result |
-| ----------------------- | - |
-| **Last commit:**        |  |
-| **Status**:             | ${ status } |
-| **Preview URL**:        | ${ previewMsg } |
+| Name                    	| Result |
+| ----------------------- 	| - |
+| **Last commit:**        	| ${ latestCommit } |
+| **Status**:             	| ${ status } |
+| **Preview URL**:        	| ${ previewMsg } |
 | **Gutenberg plugin zip**: | ${ artifactMsg } |
   `
 	} )
