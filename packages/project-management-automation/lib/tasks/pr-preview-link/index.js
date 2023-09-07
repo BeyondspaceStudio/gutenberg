@@ -103,7 +103,6 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 		"mode": 'gfm',
 		"text":
 			`
-<!--gutenberg-run-placeholder:cmt@v1-->
 # Gutenberg Plugin build status
 
 | Name                    | Result |
@@ -114,7 +113,7 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 | **Gutenberg plugin zip**: | ${ artifactMsg } |
   `
 	} )
-	return response.data;
+	return `<!--gutenberg-run-placeholder:cmt@v1-->${ response.data }`;
 };
 
 
