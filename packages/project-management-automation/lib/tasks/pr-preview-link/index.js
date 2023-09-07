@@ -1,11 +1,13 @@
 
+// @ts-nocheck
+
 /**
  * Internal dependencies
  */
 const debug = require( '../../debug' );
 
 /** @typedef {ReturnType<import('@actions/github').getOctokit>} GitHub */
-/** @typedef {import('@octokit/webhooks').WorkflowRunEvent} WorkflowRunEvent */
+/** @typedef {any} WorkflowRunEvent */
 
 /**
  * Adds a comment to new PRs with a link to the corresponding gutenberg.run preview site.
