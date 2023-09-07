@@ -94,13 +94,21 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 
 	debug(JSON.stringify({ buildStatus, commitHash, pullRequestNumber, artifactsUrl }))
 
-	const response = await octokit.rest.markdown.render({ "text": `
-	# Deploying with Cloudflare Pages
+	const response = await octokit.markdown.render( {
+		"mode": 'markdown',
+		"text":
+			`
+<!--gutenberg-run-placeholder:cmt@v1-->
+# Gutenberg Plugin build status
 
-| Name                    | Result |
-| ----------------------- | - |
-| **Last commit:**        | ${buildStatus} |
-	`, "mode": "gfm" });
+ Name                    | Result |
+ ----------------------- | - |
+ **Last commit:**        | \`${commitHash.substring(0, 8)}\` |
+ **Status**:             | ${buildStatus} |
+ **Preview URL**:        | ${pullRequestNumber} |
+ **Branch Preview URL**: | ${artifactsUrl} |
+  `
+	} )
 	return response.data;
 };
 
