@@ -28,7 +28,7 @@ async function prPreviewLink( payload, octokit ) {
 	  
 	if ( action === 'in_progress' ) {
 		const commentBody = await createBuildSummary({
-			buildStatus: action, latestCommit, pullRequestNumber, artifactsUrl: ''
+			buildStatus: action, latestCommit, pullRequestNumber, artifact: null
 		}, octokit);
 
 		await octokit.rest.issues.createComment( {
@@ -45,13 +45,29 @@ async function prPreviewLink( payload, octokit ) {
 			owner,
 			repo,
 			run_id: workflowRunId,
+			name: 'gutenberg-plugin',
+			per_page: 1
 		});
 		const artifacts = artifactsResponse.data.artifacts;
 		debug( JSON.stringify(artifacts) );
 
-		const commentBody = await createBuildSummary({
-			buildStatus: 'success', latestCommit, pullRequestNumber, artifactsUrl: ''
-		}, octokit);
+		let commentBody;
+		if ( ! artifacts.length ) {
+			commentBody = await createBuildSummary({
+				buildStatus: 'failure', latestCommit, pullRequestNumber, artifactsUrl: null
+			}, octokit);
+		} else {
+			const artifact = artifacts[ 0 ];
+			// The artifact URL on Checks screen
+			const artifactUrl = `${ repoHtmlUrl }/suites/${ checkSuiteId }/artifacts/${artifact.id}`;
+			const sizeInMB = artifact.size_in_bytes / (1024 * 1024);
+			commentBody = await createBuildSummary({
+				buildStatus: 'failure', latestCommit, pullRequestNumber, artifact: {
+					url: artifactUrl,
+					size: sizeInMB.toFixed( 2 )
+				}
+			}, octokit);
+		}
 
 		await octokit.rest.issues.createComment( {
 			owner,
@@ -113,18 +129,18 @@ async function prPreviewLink( payload, octokit ) {
 	} );
 }
 
-const createBuildSummary = async ( { buildStatus, latestCommit, pullRequestNumber, artifactsUrl }, octokit ) => {
+const createBuildSummary = async ( { buildStatus, latestCommit, pullRequestNumber, artifact }, octokit ) => {
 	let status, previewMsg, artifactMsg;
 	status = previewMsg = artifactMsg = "🚧  Building in progress...";
 	if (buildStatus === "success") {
 		status = "✅  Build successful!";
 		previewMsg = `🔗 [gutenberg.run/${ pullRequestNumber }](gutenberg.run/${ pullRequestNumber })`;
-		artifactMsg = `📦 [gutenberg-plugin](${ artifactsUrl }) - 8.85 MB`;
+		artifactMsg = `📦 [gutenberg-plugin](${ artifact.url }) - ${ artifact.size } MB`;
 	} else if (buildStatus === "failure") {
 		status = previewMsg = artifactMsg = "🚫  Build failed!";
 	}
 
-	debug(JSON.stringify({ buildStatus, latestCommit, pullRequestNumber, artifactsUrl }))
+	debug(JSON.stringify({ buildStatus, latestCommit, pullRequestNumber, artifact }))
 
 	const response = await octokit.rest.markdown.render( {
 		mode: 'gfm',
