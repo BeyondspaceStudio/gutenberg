@@ -100,7 +100,7 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 	debug(JSON.stringify({ buildStatus, commitHash, pullRequestNumber, artifactsUrl }))
 
 	const response = await octokit.rest.markdown.render( {
-		"mode": 'markdown',
+		"mode": 'gfm',
 		"text":
 			`
 <!--gutenberg-run-placeholder:cmt@v1-->
@@ -116,5 +116,6 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 	} )
 	return response.data;
 };
+
 
 module.exports = prPreviewLink;
