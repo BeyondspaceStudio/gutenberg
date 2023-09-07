@@ -21,7 +21,7 @@ async function prPreviewLink( payload, octokit ) {
 	  
 	if (action === 'in_progress') {
 		const commentBody = await createBuildSummary({
-			buildStatus: action, commitHash: '12345678', pullRequestNumber, artifactsUrl: 'N/A'
+			buildStatus: action, commitHash: '12345678', pullRequestNumber, artifactsUrl: 'https://github.com/WordPress/gutenberg/suites/14933339105/artifacts/851299943'
 		}, octokit);
 
 		await octokit.rest.issues.createComment( {
@@ -74,22 +74,27 @@ async function prPreviewLink( payload, octokit ) {
 	debug(Object.keys(artifacts).toString());
 
 	debug( 'pr-preview-link: Adding comment to PR.' );
+	const commentBody = await createBuildSummary({
+		buildStatus: 'success', commitHash: '12345678', pullRequestNumber, artifactsUrl: 'https://github.com/WordPress/gutenberg/suites/14933339105/artifacts/851299943'
+	}, octokit);
+
 	await octokit.rest.issues.createComment( {
 		owner,
 		repo,
 		issue_number: pullRequestNumber,
-		body:
-			'Preview site for this PR: http://gutenberg.run/' +
-			pullRequestNumber,
+		body: commentBody,
 	} );
 }
 
 const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber, artifactsUrl }, octokit ) => {
-	let status = "⚡️  Building in progress...";
+	let status, previewMsg, artifactMsg;
+	status = previewMsg = artifactMsg = "🚧  Building in progress...";
 	if (buildStatus === "success") {
 		status = "✅  Build successful!";
+		previewMsg = `🔗 [gutenberg.run/${ pullRequestNumber }](gutenberg.run/${ pullRequestNumber })`;
+		artifactMsg = `📦 [gutenberg-plugin](${ artifactsUrl }) - 8.85 MB`;
 	} else if (buildStatus === "failure") {
-		status = "🚫  Build failed!";
+		status = previewMsg = artifactMsg = "🚫  Build failed!";
 	}
 
 	debug(JSON.stringify({ buildStatus, commitHash, pullRequestNumber, artifactsUrl }))
@@ -101,12 +106,12 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 <!--gutenberg-run-placeholder:cmt@v1-->
 # Gutenberg Plugin build status
 
- Name                    | Result |
- ----------------------- | - |
- **Last commit:**        | \`${commitHash.substring(0, 8)}\` |
- **Status**:             | ${buildStatus} |
- **Preview URL**:        | ${pullRequestNumber} |
- **Branch Preview URL**: | ${artifactsUrl} |
+| Name                    | Result |
+| ----------------------- | - |
+| **Last commit:**        |  |
+| **Status**:             | ${ status } |
+| **Preview URL**:        | ${ previewMsg } |
+| **Gutenberg plugin zip**: | ${ artifactMsg } |
   `
 	} )
 	return response.data;
