@@ -5,12 +5,12 @@
 const debug = require( '../../debug' );
 
 /** @typedef {ReturnType<import('@actions/github').getOctokit>} GitHub */
-/** @typedef {import('@octokit/webhooks').WebhookPayloadPullRequest} WebhookPayloadPullRequest */
+/** @typedef {import('@octokit/webhooks').WebhookPayloadWorkflowRun} WebhookPayloadWorkflowRun */
 
 /**
  * Adds a comment to new PRs with a link to the corresponding gutenberg.run preview site.
  *
- * @param {WebhookPayloadPullRequest} payload Pull request event payload.
+ * @param {WebhookPayloadWorkflowRun} payload Pull request event payload.
  * @param {GitHub}                    octokit Initialized Octokit REST client.
  */
 async function prPreviewLink( payload, octokit ) {
