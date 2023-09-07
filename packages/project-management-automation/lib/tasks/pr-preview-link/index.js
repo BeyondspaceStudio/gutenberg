@@ -86,6 +86,10 @@ async function prPreviewLink( payload, octokit ) {
 	const repoHtmlUrl 	= payload.repository.html_url;
     const workflowRun 	= payload.workflow_run;
 	const workflowRunId = workflowRun.id;
+
+	debug( `workflow_run ${ action } detail` );
+	debug( JSON.stringify(payload) );
+
 	const pullRequestNumber = workflowRun.pull_requests[ 0 ].number;
 	const checkSuiteId 		= workflowRun.check_suite_id;
 	const latestCommit 		= `${ repoHtmlUrl }/pull/${ pullRequestNumber }/commits/${ workflowRun.head_sha }`;
@@ -96,7 +100,6 @@ async function prPreviewLink( payload, octokit ) {
 		}, octokit);
 
 		await writeComment( { owner, repo, pullRequestNumber, commentBody }, octokit );
-		return;
 	}
 
 	if ( action === 'completed' ) {
@@ -129,9 +132,9 @@ async function prPreviewLink( payload, octokit ) {
 		}
 
 		await writeComment( { owner, repo, pullRequestNumber, commentBody }, octokit);
-		return;
 	}
 
+	return;
 	debug(JSON.stringify(payload));
 
 	debug( 'workflow_run: run detail' );
