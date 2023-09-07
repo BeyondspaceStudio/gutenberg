@@ -16,14 +16,41 @@ const debug = require( '../../debug' );
  * @param {GitHub}                  octokit Initialized Octokit REST client.
  */
 async function prPreviewLink( payload, octokit ) {
-	const repo = payload.repository.name;
-	const owner = payload.repository.owner.login;
-	const action = payload.action;
-	const pullRequestNumber = payload.workflow_run.pull_requests[0].number;
+	const action 		= payload.action;
+	const repo 			= payload.repository.name;
+	const owner 		= payload.repository.owner.login;
+	const repoHtmlUrl 	= payload.repository.html_url;
+    const workflowRun 	= payload.workflow_run;
+	const workflowRunId = workflowRun.id;
+	const pullRequestNumber = workflow_run.pull_requests[0].number;
+	const checkSuiteId 		= workflow_run.check_suite_id;
+	const latestCommit 		= `${ repoHtmlUrl }/pull/${ pullRequestNumber }/commits/${ workflowRun.head_sha }`;
 	  
-	if (action === 'in_progress') {
+	if ( action === 'in_progress' ) {
 		const commentBody = await createBuildSummary({
-			buildStatus: action, commitHash: '12345678', pullRequestNumber, artifactsUrl: 'https://github.com/WordPress/gutenberg/suites/14933339105/artifacts/851299943'
+			buildStatus: action, latestCommit, pullRequestNumber, artifactsUrl: ''
+		}, octokit);
+
+		await octokit.rest.issues.createComment( {
+			owner,
+			repo,
+			issue_number: pullRequestNumber,
+			body: commentBody,
+		} );
+		return;
+	}
+
+	if ( action === 'completed' ) {
+		const artifactsResponse = await octokit.rest.actions.listWorkflowRunArtifacts({
+			owner,
+			repo,
+			run_id: workflowRunId,
+		});
+		const artifacts = artifactsResponse.data.artifacts;
+		debug( JSON.stringify(artifacts) );
+
+		const commentBody = await createBuildSummary({
+			buildStatus: 'success', latestCommit, pullRequestNumber, artifactsUrl: ''
 		}, octokit);
 
 		await octokit.rest.issues.createComment( {
@@ -51,6 +78,7 @@ async function prPreviewLink( payload, octokit ) {
 	
 	debug( 'artifacts: detail data.' );
 	// Retrieve artifacts for a specific workflow run
+	const runId = 6035878166;
 	const getArtifacts = async (owner, repo, runId) => {
 		try {
 		const response = await octokit.rest.actions.listWorkflowRunArtifacts({
@@ -70,14 +98,11 @@ async function prPreviewLink( payload, octokit ) {
 		}
 	};
 	
-	const runId = 6035878166;
-	
 	const artifacts = await getArtifacts("WordPress", repo, runId)
-	debug(Object.keys(artifacts).toString());
 
 	debug( 'pr-preview-link: Adding comment to PR.' );
 	const commentBody = await createBuildSummary({
-		buildStatus: 'success', commitHash: '12345678', pullRequestNumber, artifactsUrl: 'https://github.com/WordPress/gutenberg/suites/14933339105/artifacts/851299943'
+		buildStatus: 'success', latestCommit, pullRequestNumber, artifactsUrl: 'https://github.com/WordPress/gutenberg/suites/14933339105/artifacts/851299943'
 	}, octokit);
 
 	await octokit.rest.issues.createComment( {
@@ -88,7 +113,7 @@ async function prPreviewLink( payload, octokit ) {
 	} );
 }
 
-const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber, artifactsUrl }, octokit ) => {
+const createBuildSummary = async ( { buildStatus, latestCommit, pullRequestNumber, artifactsUrl }, octokit ) => {
 	let status, previewMsg, artifactMsg;
 	status = previewMsg = artifactMsg = "🚧  Building in progress...";
 	if (buildStatus === "success") {
@@ -99,7 +124,7 @@ const createBuildSummary = async ( { buildStatus, commitHash, pullRequestNumber,
 		status = previewMsg = artifactMsg = "🚫  Build failed!";
 	}
 
-	debug(JSON.stringify({ buildStatus, commitHash, pullRequestNumber, artifactsUrl }))
+	debug(JSON.stringify({ buildStatus, latestCommit, pullRequestNumber, artifactsUrl }))
 
 	const response = await octokit.rest.markdown.render( {
 		"mode": 'gfm',
