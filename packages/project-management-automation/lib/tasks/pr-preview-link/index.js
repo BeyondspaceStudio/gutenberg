@@ -22,8 +22,8 @@ async function prPreviewLink( payload, octokit ) {
 	const repoHtmlUrl 	= payload.repository.html_url;
     const workflowRun 	= payload.workflow_run;
 	const workflowRunId = workflowRun.id;
-	const pullRequestNumber = workflow_run.pull_requests[0].number;
-	const checkSuiteId 		= workflow_run.check_suite_id;
+	const pullRequestNumber = workflowRun.pull_requests[0].number;
+	const checkSuiteId 		= workflowRun.check_suite_id;
 	const latestCommit 		= `${ repoHtmlUrl }/pull/${ pullRequestNumber }/commits/${ workflowRun.head_sha }`;
 	  
 	if ( action === 'in_progress' ) {
