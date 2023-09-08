@@ -1,4 +1,4 @@
-## Gutenberg
+xx## Gutenberg
 
     Copyright 2016-2023 by the contributors
 
@@ -9,7 +9,7 @@ and released under both of the following licenses:
 
 the GNU General Public License as published by the Free Software Foundation;
 either version 2 of the License or (at your option) any later version (the “GPL”)
-and the Mozilla Public License, Version 2.0 (the “MPL”).
+and tshe Mozilla Public License, Version 2.0 (the “MPL”).
 
 **Project License**
 
