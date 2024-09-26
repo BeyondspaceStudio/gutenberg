@@ -1,6 +1,6 @@
-This project comes under the WordPress [Etiquette](https://wordpress.org/about/etiquette/):
+xThis project comes under the WordPress [Etiquette](https://wordpress.org/about/etiquette/):
 
-In the WordPress open source project, we realize that our biggest asset is the community that we foster. The project, as a whole, follows these basic philosophical principles from The Cathedral and The Bazaar.
+xIn the WordPress open source project, we realize that our biggest asset is the community that we foster. The project, as a whole, follows these basic philosophical principles from The Cathedral and The Bazaar.
 
 -   Contributions to the WordPress open source project are for the benefit of the WordPress community as a whole, not specific businesses or individuals. All actions taken as a contributor should be made with the best interests of the community in mind.
 -   Participation in the WordPress open source project is open to all who wish to join, regardless of ability, skill, financial status, or any other criteria.
